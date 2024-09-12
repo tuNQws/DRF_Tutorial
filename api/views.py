@@ -10,30 +10,38 @@ from api import serializers
 
 # Create your views here.
 
-@api_view()
+@api_view(["GET", "POST"])
 def api_products(request):
-    products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data)
+    if request.method == "GET":
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+    
+    if request.method == "POST":
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
 
-        
 
-
-@api_view()
+@api_view(["GET", "PUT"])
 def api_product(request, pk):
     product = get_object_or_404(Product, id=pk)
-    serializer = ProductSerializer(product)
-    return Response(serializer.data)
-  
-        
-
+    if request.method == "GET":
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
+    
+    if request.method == "PUT":
+        serializer = ProductSerializer(product, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
 
 @api_view()
 def api_categories(request):
     categories = Category.objects.all()
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
-
 
 @api_view()
 def api_category(request, pk):
